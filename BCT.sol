@@ -45,7 +45,7 @@ abstract contract Context {
     }
 }
 
-interface IBRC20 {
+interface IERC20 {
     /**
      * @dev Returns the amount of tokens in existence.
      */
@@ -116,7 +116,7 @@ interface IBRC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-interface IBRC20Metadata is IBRC20 {
+interface IERC20Metadata is IERC20 {
     /**
      * @dev Returns the name of the token.
      */
@@ -133,7 +133,7 @@ interface IBRC20Metadata is IBRC20 {
     function decimals() external view returns (uint8);
 }
 
-contract BRC20 is Context, IBRC20, IBRC20Metadata {
+contract ERC20 is Context, IERC20, IERC20Metadata {
     
     using Counters for Counters.Counter;
     Counters.Counter private _recordId;
@@ -194,33 +194,33 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * be displayed to a user as `5,05` (`505 / 10 ** 2`).
      *
      * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {BRC20} uses, unless this function is
+     * Ether and Wei. This is the value {ERC20} uses, unless this function is
      * overridden;
      *
      * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including
-     * {IBRC20-balanceOf} and {IBRC20-transfer}.
+     * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view virtual override returns (uint8) {
         return _decimals;
     }
 
     /**
-     * @dev See {IBRC20-totalSupply}.
+     * @dev See {IERC20-totalSupply}.
      */
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
     }
 
     /**
-     * @dev See {IBRC20-balanceOf}.
+     * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
     }
 
     /**
-     * @dev See {IBRC20-transfer}.
+     * @dev See {IERC20-transfer}.
      *
      * Requirements:
      *
@@ -233,14 +233,14 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
     }
 
     /**
-     * @dev See {IBRC20-allowance}.
+     * @dev See {IERC20-allowance}.
      */
     function allowance(address owner, address spender) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
 
     /**
-     * @dev See {IBRC20-approve}.
+     * @dev See {IERC20-approve}.
      *
      * Requirements:
      *
@@ -252,10 +252,10 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
     }
 
     /**
-     * @dev See {IBRC20-transferFrom}.
+     * @dev See {IERC20-transferFrom}.
      *
      * Emits an {Approval} event indicating the updated allowance. This is not
-     * required by the EIP. See the note at the beginning of {BRC20}.
+     * required by the EIP. See the note at the beginning of {ERC20}.
      *
      * Requirements:
      *
@@ -268,7 +268,7 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require(currentAllowance >= amount, "BRC20: transfer amount exceeds allowance");
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         _approve(sender, _msgSender(), currentAllowance - amount);
         return true;
     }
@@ -277,7 +277,7 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * @dev Atomically increases the allowance granted to `spender` by the caller.
      *
      * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IBRC20-approve}.
+     * problems described in {IERC20-approve}.
      *
      * Emits an {Approval} event indicating the updated allowance.
      *
@@ -294,7 +294,7 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * @dev Atomically decreases the allowance granted to `spender` by the caller.
      *
      * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IBRC20-approve}.
+     * problems described in {IERC20-approve}.
      *
      * Emits an {Approval} event indicating the updated allowance.
      *
@@ -306,7 +306,7 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
-        require(currentAllowance >= subtractedValue, "BRC20: decreased allowance below zero");
+        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         _approve(_msgSender(), spender, currentAllowance - subtractedValue);
 
         return true;
@@ -327,13 +327,13 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * - `sender` must have a balance of at least `amount`.
      */
     function _transfer(address sender, address recipient, uint256 amount) internal virtual {
-        require(sender != address(0), "BRC20: transfer from the zero address");
-        require(recipient != address(0), "BRC20: transfer to the zero address");
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
 
         _beforeTokenTransfer(sender, recipient, amount);
 
         uint256 senderBalance = _balances[sender];
-        require(senderBalance >= amount, "BRC20: transfer amount exceeds balance");
+        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         _balances[sender] = senderBalance - amount;
         _balances[recipient] += amount;
 
@@ -358,7 +358,7 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * - `to` cannot be the zero address.
      */
     function _mint(address account, uint256 amount) internal virtual {
-        require(account != address(0), "BRC20: mint to the zero address");
+        require(account != address(0), "ERC20: mint to the zero address");
 
         _beforeTokenTransfer(address(0), account, amount);
 
@@ -381,12 +381,12 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * - `account` must have at least `amount` tokens.
      */
     function _burn(address account, uint256 amount) internal virtual {
-        require(account != address(0), "BRC20: burn from the zero address");
+        require(account != address(0), "ERC20: burn from the zero address");
 
         _beforeTokenTransfer(account, address(0), amount);
 
         uint256 accountBalance = _balances[account];
-        require(accountBalance >= amount, "BRC20: burn amount exceeds balance");
+        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
         _balances[account] = accountBalance - amount;
         _totalSupply -= amount;
 
@@ -408,8 +408,8 @@ contract BRC20 is Context, IBRC20, IBRC20Metadata {
      * - `spender` cannot be the zero address.
      */
     function _approve(address owner, address spender, uint256 amount) internal virtual {
-        require(owner != address(0), "BRC20: approve from the zero address");
-        require(spender != address(0), "BRC20: approve to the zero address");
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
@@ -470,7 +470,7 @@ interface IBCTDeal {
     function transfer(address sender, address recipient, uint256 amount) external;
 }
 
-contract BCT is BRC20, DataOwnable {
+contract BCT is ERC20, DataOwnable {
 
     constructor(
         string memory _name,
@@ -478,7 +478,7 @@ contract BCT is BRC20, DataOwnable {
         uint8 _decimal,
         address[] memory _operater
     ) 
-    BRC20(_name, _symbol, _decimal)
+    ERC20(_name, _symbol, _decimal)
     DataOwnable(_operater) {}
 
     IBCTDeal bctDeal;
