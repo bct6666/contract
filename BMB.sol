@@ -125,7 +125,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     string private _name;
     string private _symbol;
-    uint8 private _decimals = 18;
+    uint8 private _decimals;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -136,9 +136,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name_, string memory symbol_) {
+    constructor (string memory name_, string memory symbol_, uint8 decimals_) {
         _name = name_;
         _symbol = symbol_;
+        _decimals = decimals_;
     }
 
     /**
@@ -426,15 +427,17 @@ library Counters {
     }
 }
 
-contract BMB is ERC20, DataOwnable {
+contract TOKEN is ERC20, DataOwnable {
     
     constructor(
-        string memory _name, string memory _symbol,
+        string memory _name, string memory _symbol, uint8 _decimals,
         address[] memory _operater
     ) 
-    ERC20(_name, _symbol)
-    DataOwnable(_operater) {
-        _mint(msg.sender, 100000000 * 10 ** decimals());
+    ERC20(_name, _symbol, _decimals)
+    DataOwnable(_operater) {}
+    
+    function mint(address _to, uint256 _totalSupply) public onlyOperater {
+        _mint(_to, _totalSupply);
     }
     
 }
