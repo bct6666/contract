@@ -156,7 +156,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     string private _name;
     string private _symbol;
-    uint8 private _decimals;
+    uint8 private _decimals = 8;
     
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -167,10 +167,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name_, string memory symbol_, uint8 decimals_) {
+    constructor (string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
-        _decimals = decimals_;
     }
 
     /**
@@ -475,23 +474,16 @@ contract BCT is ERC20, DataOwnable {
     constructor(
         string memory _name,
         string memory _symbol,
-        uint8 _decimal,
         address[] memory _operater
     ) 
-    ERC20(_name, _symbol, _decimal)
-    DataOwnable(_operater) {}
+    ERC20(_name, _symbol)
+    DataOwnable(_operater) {
+        _mint(msg.sender, 200000000 * 10 ** decimals());
+    }
 
     IBCTDeal bctDeal;
     function setConfig(IBCTDeal _bctDeal) public onlyOwner {
         bctDeal = _bctDeal;
-    }
-    
-    function mint(address _to, uint256 _amount) public onlyOperater {
-        _mint(_to, _amount);
-    }
-    
-    function burn(address _to, uint256 _amount) public onlyOperater {
-        _burn(_to, _amount);
     }
 
     function updBalanceOp(bool _addFlag, address _account, uint _amount) public onlyOperater {
@@ -512,7 +504,9 @@ contract BCT is ERC20, DataOwnable {
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
-        bctDeal.beforeTokenTransfer(from, to, amount);
+        if(address(bctDeal) != address(0)) {
+            bctDeal.beforeTokenTransfer(from, to, amount);
+        }
     }
     
     function superAfterTokenTransfer(address from, address to, uint256 amount) public onlyOperater {
@@ -520,7 +514,9 @@ contract BCT is ERC20, DataOwnable {
     }
 
     function _afterTokenTransfer(address from, address to, uint256 amount) internal override {
-        bctDeal.afterTokenTransfer(from, to, amount);
+        if(address(bctDeal) != address(0)) {
+            bctDeal.afterTokenTransfer(from, to, amount);
+        }
     }
 
     function superTransfer(address sender, address recipient, uint256 amount) public onlyOperater {
@@ -528,7 +524,9 @@ contract BCT is ERC20, DataOwnable {
     }
 
     function _transfer(address sender, address recipient, uint256 amount) internal override {
-        bctDeal.transfer(sender, recipient, amount);
+        if(address(bctDeal) != address(0)) {
+            bctDeal.transfer(sender, recipient, amount);
+        }
     }
     
 }
